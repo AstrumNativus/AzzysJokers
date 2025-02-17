@@ -1,0 +1,20 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "mult, hand_chips, modded = G.GAME.blind:modify_hand(G.play.cards, poker_hands, text, mult, hand_chips)"
+position = "before"
+match_indent = true
+payload = "SMODS.calculate_context { after_before = true }"
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "card_eval_status_text((reps[j].jokers or reps[j].seals).card, 'jokers', nil, nil, nil, (reps[j].jokers or reps[j].seals))"
+position = "after"
+match_indent = true
+payload = "SMODS.calculate_context { when_repeat = true }"
