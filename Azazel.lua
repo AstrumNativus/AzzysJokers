@@ -335,7 +335,7 @@ SMODS.Joker {
 			"and earns {C:money}$1{}"
 		}
 	},
-	config = { extra = {  } },
+	config = { extra = { goatCard = {} } },
 	rarity = 1,
 	atlas = 'jokers',
 	pos = { x = 3, y = 6 },
@@ -345,22 +345,16 @@ SMODS.Joker {
 	eternal_compat = true,
 	perishable_compat = true,
 	loc_vars = function(self, info_queue, card)
-		return { vars = {  } }
+		return { vars = { card.ability.extra.goatCard } }
 	end,
 	calculate = function(self, card, context)
-		if context.joker_main then
-			local goatCard = pseudorandom_element(G.hand.cards, pseudoseed('goat'))
-			G.E_MANAGER:add_event(Event({
-				trigger = 'after',
-				delay = 0.3,
-				blockable = false,
-				func = function()
-					goatCard:start_dissolve(nil)
-					ease_dollars(1)
-					card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Eaten!"})
-				return true;
-				end
-			}))
+		if context.before and context.main_eval then
+			card.ability.extra.goatCard = pseudorandom_element(G.hand.cards, pseudoseed('goat'))
+		elseif context.destroy_card and context.cardarea == G.hand then
+			if context.destroy_card == card.ability.extra.goatCard then
+				ease_dollars(1)
+				return { message = "Eaten!", remove = true }
+			end
 		end
 	end
 }
@@ -2281,20 +2275,21 @@ SMODS.Joker{
 	perishable_compat = true,
 	atlas = "jokers",
 	pos = { x = 5, y = 6 },
-	config = { extra = { xMult = 1 } },
+	config = { extra = { xMult = 1, runKill = true } },
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xMult } }
+		return { vars = { card.ability.extra.xMult, card.ability.extra.runKill } }
 	end,
 	calculate = function(self, card, context)
-		if context.before then 
-			for i=1,#context.scoring_hand do
-				if context.scoring_hand[i].debuff and not context.blueprint then
-					context.scoring_hand[i]:start_dissolve(nil)
+		if context.destroy_card and context.cardarea == G.play then 
+			if card.ability.extra.runKill then
+				local destroyed_cards = {}
+				if context.destroying_card.debuff and not context.blueprint then
 					card.ability.extra.xMult = card.ability.extra.xMult + 0.1
-					card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Slain", colour = G.C.MULT})
+					return { message = "Slain", colour = G.C.MULT, remove = true }
 				end
 			end
 		elseif context.joker_main then
+			card.ability.extra.runKill = true
 			return {
 				x_mult = card.ability.extra.xMult
 			}
