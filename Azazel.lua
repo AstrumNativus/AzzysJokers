@@ -896,9 +896,9 @@ SMODS.Joker{
 	perishable_compat = true,
 	atlas = "jokers",
 	pos = { x = 4, y = 6 },
-	config = { extra = { canPay = true } },
+	config = { extra = { canPay = true, payLock = true } },
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.canPay } }
+		return { vars = { card.ability.extra.canPay, card.ability.extra.payLock } }
 	end,
 	calculate = function(self, card, context)
 		-- if context.final_scoring_step and context.cardarea == G.play then
@@ -911,18 +911,23 @@ SMODS.Joker{
 				-- }
 			-- end
 		-- end
-		if context.end_of_round then
+		if context.cardarea == G.play then
+			card.ability.extra.payLock = false
+		elseif context.end_of_round then
 			card.ability.extra.canPay = true
 		end
 	end,
 	
 	update = function(self, card, dt) 
 		if G.GAME.blind then
-			if card.ability.extra.canPay then
-				if (G.GAME.current_round.current_hand.chips * G.GAME.current_round.current_hand.mult) > G.GAME.blind.chips then
-					ease_dollars(6)
-					card.ability.extra.canPay = false
-					card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Bounty!", colour = G.C.RED})
+			if card.ability.extra.canPay and not card.ability.extra.payLock then
+				if (type(G.GAME.current_round.current_hand.chips) == "number") and (type(G.GAME.current_round.current_hand.mult) == "number") then
+					if ((G.GAME.current_round.current_hand.chips * G.GAME.current_round.current_hand.mult) > G.GAME.blind.chips) then
+						ease_dollars(6)
+						card.ability.extra.canPay = false
+						card.ability.extra.payLock = true
+						card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Bounty!", colour = G.C.RED})
+					end
 				end
 			end
 		end
