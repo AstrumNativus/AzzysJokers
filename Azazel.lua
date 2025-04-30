@@ -3,7 +3,7 @@
 --- MOD_ID: AzzysJokers
 --- MOD_AUTHOR: [Starlet Devil]
 --- MOD_DESCRIPTION: Adds a crew of new Jokers I thought of
---- VERSION: 1.0.0
+--- VERSION: 2.0.1
 --- PREFIX: azzy
 ----------------------------------------------
 ------------MOD CODE -------------------------
@@ -5653,10 +5653,10 @@ SMODS.Joker{
 	perishable_compat = true,
 	atlas = "jokers2",
 	pos = { x = 4, y = 6 },
-	config = { extra = { jokerCount = 0 } },
+	config = { extra = { canTrade = false } },
 	loc_vars = function(self, info_queue, card)
 		return { 
-			vars = { card.ability.extra.jokerCount }
+			vars = { card.ability.extra.canTrade }
 		}
 	end,
 	
@@ -5667,16 +5667,19 @@ SMODS.Joker{
 	
 	calculate = function(self, card, context)
 		if context.setting_blind then
-			card.ability.extra.jokerCount = #G.jokers.cards
+			card.ability.extra.canTrade = true
 		end
-		if G.GAME.blind and context.selling_card then
+		if context.end_of_round then
+			card.ability.extra.canTrade = false
+		end
+		if card.ability.extra.canTrade and context.selling_card then
 			if context.card.ability.set == "Joker" then
 				G.E_MANAGER:add_event(Event({
 					func = function()
 						local card = copy_card(pseudorandom_element(G.hand.cards, pseudoseed('trade')), nil)
 						card:add_to_deck()
 						G.deck.config.card_limit = G.deck.config.card_limit + 1
-                        table.insert(G.playing_cards, card)
+						table.insert(G.playing_cards, card)
 						G.hand:emplace(card)
 						return true
 					end
@@ -5687,7 +5690,7 @@ SMODS.Joker{
 					local card = copy_card(pseudorandom_element(G.hand.cards, pseudoseed('trade')), nil)
 					card:add_to_deck()
 					G.deck.config.card_limit = G.deck.config.card_limit + 1
-                    table.insert(G.playing_cards, card)
+					table.insert(G.playing_cards, card)
 					G.hand:emplace(card)
 					return true
 				end
