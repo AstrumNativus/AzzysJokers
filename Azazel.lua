@@ -3,7 +3,7 @@
 --- MOD_ID: AzzysJokers
 --- MOD_AUTHOR: [Starlet Devil]
 --- MOD_DESCRIPTION: Adds a crew of new Jokers I thought of
---- VERSION: 2.0.1
+--- VERSION: 1.0.0
 --- PREFIX: azzy
 ----------------------------------------------
 ------------MOD CODE -------------------------
@@ -2841,8 +2841,7 @@ SMODS.Joker {
 		text = {
 			"Gains {X:mult,C:white} X#2# {} Mult each time",
 			"a card is {C:attention}retriggered{}",
-			"{C:inactive}(Currently {}{X:mult,C:white}X#1#{} {C:inactive}Mult){}",
-			'{s:0.8,C:inactive}"Everything will be okay"'
+			"{C:inactive}(Currently {}{X:mult,C:white}X#1#{} {C:inactive}Mult){}"
 		}
 	},
 	config = { extra = { Xmult = 1, XmultGain = 0.1 } },
@@ -2858,7 +2857,7 @@ SMODS.Joker {
 		return { vars = { card.ability.extra.Xmult, card.ability.extra.XmultGain } }
 	end,
 	set_badges = function(self, card, badges)
-		badges[#badges+1] = create_badge("twitch.tv/shayy", HEX('8b00ff'), G.C.WHITE, 1)
+		badges[#badges+1] = create_badge("Undertale", G.C.BLACK, G.C.WHITE, 1)
 		badges[#badges+1] = create_badge("Wave 1", HEX('f03464'), G.C.WHITE, 1)
 	end,
 	calculate = function(self, card, context)
